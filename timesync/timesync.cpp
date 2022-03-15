@@ -13,6 +13,7 @@ int main(int argc, char* argv[])
 	{
 	case PROCESS_TYPE_SERVER:
 	{
+		printf("I am timesync server\n");
 		switch (protocol)
 		{
 		case IPPROTO_TCP:
@@ -30,6 +31,7 @@ int main(int argc, char* argv[])
 	break;
 	case PROCESS_TYPE_CLIENT:
 	{
+		printf("I am timesync client\n");
 		switch (protocol)
 		{
 		case IPPROTO_TCP:

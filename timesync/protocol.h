@@ -14,6 +14,7 @@ enum CLIENT_MESSAGE_NUM
 {
 	CLIENT_MESSAGE_NUM_NONE,
 	CLIENT_MESSAGE_NUM_CHECK,
+	CLIENT_MESSAGE_NUM_SYNC_RET,
 };
 
 struct MessageHeader
@@ -38,6 +39,13 @@ struct CheckTime
 {
 	CheckTime();
 	MessageHeader head;
+};
+
+struct SyncTimeRet
+{
+	SyncTimeRet();
+	MessageHeader head;
+	SYSTEMTIME time;
 };
 
 void ProcessServerMessage(SOCKET sock, const MessageHeader& head, void* buf, int buf_len);

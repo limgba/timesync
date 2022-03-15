@@ -40,7 +40,7 @@ void ProcessServerMessage(SOCKET sock, const MessageHeader& head, void* buf, int
 			int ret = SetLocalTime(&msg->time);
 			if (ret)
 			{
-				printf("设置时间成功 %d-%d-%d %d:%d:%d\n",
+				printf("设置时间成功 %04d-%02d-%02d %02d:%02d:%02d\n",
 					(int)msg->time.wYear,
 					(int)msg->time.wMonth,
 					(int)msg->time.wDay,
@@ -48,6 +48,27 @@ void ProcessServerMessage(SOCKET sock, const MessageHeader& head, void* buf, int
 					(int)msg->time.wMinute,
 					(int)msg->time.wSecond
 				);
+
+				SyncTimeRet sync_time_ret;
+				memcpy(&sync_time_ret.time, &msg->time, sizeof(msg->time));
+				int ret = SOCKET_ERROR;
+				switch (protocol)
+				{
+				case IPPROTO_TCP:
+				{
+					ret = send(sock, (const char*)&sync_time_ret, sizeof(sync_time_ret), 0);
+				}
+				break;
+				case IPPROTO_UDP:
+				{
+					ret = sendto(sock, (const char*)&sync_time_ret, sizeof(sync_time_ret), 0, (sockaddr*)&last_recvfrom_addr, sizeof(last_recvfrom_addr));
+				}
+				break;
+				}
+				if (ret == SOCKET_ERROR)
+				{
+					printf("socket error sock[%d] error[%d]\n", sock, GetLastError());
+				}
 			}
 			else
 			{
@@ -96,6 +117,26 @@ void ProcessClientMessage(SOCKET sock, const MessageHeader& head, void* buf, int
 		}
 	}
 	break;
+	case CLIENT_MESSAGE_NUM_SYNC_RET:
+	{
+		if (buf_len != sizeof(SyncTimeRet))
+		{
+			printf("ProcessServerMessage recv error message_num[%d] buf_len[%d]\n", head.message_num, buf_len);
+			return;
+		}
+		SyncTimeRet* msg = (SyncTimeRet*)buf;
+
+		printf("sock[%d] 设置时间成功 %04d-%02d-%02d %02d:%02d:%02d\n",
+			sock,
+			(int)msg->time.wYear,
+			(int)msg->time.wMonth,
+			(int)msg->time.wDay,
+			(int)msg->time.wHour,
+			(int)msg->time.wMinute,
+			(int)msg->time.wSecond
+		);
+	}
+	break;
 	}
 }
 
@@ -130,4 +171,9 @@ SyncTime::SyncTime() : head(PROCESS_TYPE_SERVER, SERVER_MESSAGE_NUM_SYNC)
 
 CheckTime::CheckTime() : head(PROCESS_TYPE_CLIENT, CLIENT_MESSAGE_NUM_CHECK)
 {
+}
+
+SyncTimeRet::SyncTimeRet() : head(PROCESS_TYPE_CLIENT, CLIENT_MESSAGE_NUM_SYNC_RET)
+{
+	memset(&time, 0, sizeof(time));
 }
