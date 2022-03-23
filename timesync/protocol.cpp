@@ -126,7 +126,7 @@ void ProcessClientMessage(SOCKET sock, const MessageHeader& head, void* buf, int
 		}
 		SyncTimeRet* msg = (SyncTimeRet*)buf;
 
-		printf("sock[%d] 设置时间成功 %04d-%02d-%02d %02d:%02d:%02d\n",
+		printf("对方sock[%d]已同步时间 %04d-%02d-%02d %02d:%02d:%02d\n",
 			sock,
 			(int)msg->time.wYear,
 			(int)msg->time.wMonth,

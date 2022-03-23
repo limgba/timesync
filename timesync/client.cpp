@@ -58,6 +58,14 @@ void tcp_client()
 		printf("connect error %d\n", GetLastError());
 		return;
 	}
+	printf("connect success sock[%d] ip[%d.%d.%d.%d] port [%d]\n",
+		sock,
+		(int)client_addr.sin_addr.S_un.S_un_b.s_b1,
+		(int)client_addr.sin_addr.S_un.S_un_b.s_b2,
+		(int)client_addr.sin_addr.S_un.S_un_b.s_b3,
+		(int)client_addr.sin_addr.S_un.S_un_b.s_b4,
+		ntohs(client_addr.sin_port)
+	);
 
 	HANDLE hthread = CreateThread(NULL, 0, tcp_client_recv_buf, (LPVOID)sock, 0, NULL);
 	if (NULL == hthread)
